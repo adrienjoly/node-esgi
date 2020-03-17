@@ -68,29 +68,8 @@ app.listen(PORT, function () {
   console.log('Example app listening on port ' + PORT)
 })
 
-/*
-function readValuesFromFile(callback) {
-  fs.readFile('réponses.json', { encoding: 'utf8' }, (err, reponses) => {
-    if (err) {
-      callback(err);
-    } else {
-      const valeursExistantes = JSON.parse(reponses);
-      callback(null, valeursExistantes);
-    }
-  });
-}
-*/
-
 function readValuesFromFile() {
-  return new Promise((resolve, reject) => {
-    readFile('réponses.json', { encoding: 'utf8' })
-      .then(reponses => {
-        const valeursExistantes = JSON.parse(reponses);
-        resolve(valeursExistantes);
-      })
-      .catch(err => {
-        reject(err);
-      })
-  })
+  return readFile('réponses.json', { encoding: 'utf8' })
+    .then(reponses => JSON.parse(reponses))
 }
 
