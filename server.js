@@ -1,3 +1,4 @@
+const fs = require('fs')
 const express = require('express')
 const app = express()
 
@@ -24,7 +25,22 @@ app.post('/chat', function (req, res) {
   } else if (req.body.msg === 'météo') {
     res.send('Il fait beau')
   } else {
-    res.send(req.body.msg)
+    if (/ = /.test(req.body.msg)) {
+      // const [ cle, valeur ] = req.body.msg.split(' = ')
+      const parties = req.body.msg.split(' = ')
+      const cle = parties[0]
+      const valeur = parties[1]
+      // const objet = { [cle]: valeur }
+      const objet = {}
+      objet[cle] = valeur
+      fs.writeFileSync('réponses.json', JSON.stringify(objet))
+    } else {
+      const cle = req.body.msg
+      const reponses = fs.readFileSync('réponses.json', { encoding: 'utf8' })
+      const reponse = JSON.parse(reponses)[cle]
+      console.log('réponses:', JSON.parse(reponses)[cle])
+      res.send(reponse)
+    }
   }
 })
 
