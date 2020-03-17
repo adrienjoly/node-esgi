@@ -27,8 +27,7 @@ app.post('/chat', function (req, res) {
   } else {
     if (/ = /.test(req.body.msg)) {
       const [ cle, valeur ] = req.body.msg.split(' = ')
-      const reponses = fs.readFileSync('réponses.json', { encoding: 'utf8' })
-      const valeursExistantes = JSON.parse(reponses)
+      const valeursExistantes = readValuesFromFile();
       fs.writeFileSync('réponses.json', JSON.stringify({
         ...valeursExistantes,
         [cle]: valeur
@@ -36,8 +35,7 @@ app.post('/chat', function (req, res) {
       res.send('Merci pour cette information !')
     } else {
       const cle = req.body.msg
-      const reponses = fs.readFileSync('réponses.json', { encoding: 'utf8' })
-      const reponse = JSON.parse(reponses)[cle]
+      const reponse = readValuesFromFile()[cle]
       res.send(cle + ': ' + reponse)
     }
   }
@@ -46,4 +44,10 @@ app.post('/chat', function (req, res) {
 app.listen(PORT, function () {
   console.log('Example app listening on port ' + PORT)
 })
+
+function readValuesFromFile() {
+  const reponses = fs.readFileSync('réponses.json', { encoding: 'utf8' });
+  const valeursExistantes = JSON.parse(reponses);
+  return valeursExistantes;
+}
 
