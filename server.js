@@ -40,7 +40,7 @@ app.post('/chat', function (req, res) {
           writeFile('réponses.json', data).then(() => {
             console.log('appel au callback de writefile')
             res.send('Merci pour cette information !')
-          }).catch((error) => {
+          }).catch((err) => {
             console.log('appel au callback de writefile')
             console.error('error while saving réponses.json', err)
             res.send('Il y a eu une erreur lors de l\'enregistrement')
