@@ -1,4 +1,5 @@
 const fs = require('fs')
+const util = require('util')
 const express = require('express')
 const app = express()
 
@@ -36,6 +37,7 @@ app.post('/chat', function (req, res) {
             ...valeursExistantes,
             [cle]: valeur
           })
+          /*
           fs.writeFile('réponses.json', data, (err) => {
             console.log('appel au callback de writefile')
             if (err) {
@@ -44,6 +46,16 @@ app.post('/chat', function (req, res) {
             } else {
               res.send('Merci pour cette information !')
             }
+          });
+          */
+          const writeFile = util.promisify(fs.writeFile);
+          writeFile('réponses.json', data).then(() => {
+            console.log('appel au callback de writefile')
+            res.send('Merci pour cette information !')
+          }).catch((error) => {
+            console.log('appel au callback de writefile')
+            console.error('error while saving réponses.json', err)
+            res.send('Il y a eu une erreur lors de l\'enregistrement')
           });
           console.log('appel à writefile effectué')
         }
