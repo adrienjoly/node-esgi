@@ -26,14 +26,13 @@ app.post('/chat', function (req, res) {
     res.send('Il fait beau')
   } else {
     if (/ = /.test(req.body.msg)) {
-      // const [ cle, valeur ] = req.body.msg.split(' = ')
-      const parties = req.body.msg.split(' = ')
-      const cle = parties[0]
-      const valeur = parties[1]
-      // const objet = { [cle]: valeur }
-      const objet = {}
-      objet[cle] = valeur
-      fs.writeFileSync('réponses.json', JSON.stringify(objet))
+      const [ cle, valeur ] = req.body.msg.split(' = ')
+      const reponses = fs.readFileSync('réponses.json', { encoding: 'utf8' })
+      const valeursExistantes = JSON.parse(reponses)
+      fs.writeFileSync('réponses.json', JSON.stringify({
+        ...valeursExistantes,
+        [cle]: valeur
+      }))
       res.send('Merci pour cette information !')
     } else {
       const cle = req.body.msg
