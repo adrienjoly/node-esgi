@@ -27,25 +27,39 @@ app.post('/chat', function (req, res) {
   } else {
     if (/ = /.test(req.body.msg)) {
       const [ cle, valeur ] = req.body.msg.split(' = ')
-      const valeursExistantes = readValuesFromFile();
-      const data = JSON.stringify({
-        ...valeursExistantes,
-        [cle]: valeur
-      })
-      fs.writeFile('réponses.json', data, (err) => {
-        console.log('appel au callback de writefile')
+      // const valeursExistantes = readValuesFromFile();
+      readValuesFromFile((err, valeursExistantes) => {
         if (err) {
-          console.error('error while saving réponses.json', err)
-          res.send('Il y a eu une erreur lors de l\'enregistrement')
+          res.send('error while reading réponses.json', err)
         } else {
-          res.send('Merci pour cette information !')
+          const data = JSON.stringify({
+            ...valeursExistantes,
+            [cle]: valeur
+          })
+          fs.writeFile('réponses.json', data, (err) => {
+            console.log('appel au callback de writefile')
+            if (err) {
+              console.error('error while saving réponses.json', err)
+              res.send('Il y a eu une erreur lors de l\'enregistrement')
+            } else {
+              res.send('Merci pour cette information !')
+            }
+          });
+          console.log('appel à writefile effectué')
         }
-      });
-      console.log('appel à writefile effectué')
+      })
+
+
     } else {
       const cle = req.body.msg
-      const reponse = readValuesFromFile()[cle]
-      res.send(cle + ': ' + reponse)
+      readValuesFromFile((err, values) => {
+        if (err) {
+          res.send('error while reading réponses.json', err)
+        } else {
+          const reponse = values[cle]
+          res.send(cle + ': ' + reponse)
+        }
+      })
     }
   }
 })
@@ -54,9 +68,14 @@ app.listen(PORT, function () {
   console.log('Example app listening on port ' + PORT)
 })
 
-function readValuesFromFile() {
-  const reponses = fs.readFileSync('réponses.json', { encoding: 'utf8' });
-  const valeursExistantes = JSON.parse(reponses);
-  return valeursExistantes;
+function readValuesFromFile(callback) {
+  fs.readFile('réponses.json', { encoding: 'utf8' }, (err, reponses) => {
+    if (err) {
+      callback(err);
+    } else {
+      const valeursExistantes = JSON.parse(reponses);
+      callback(null, valeursExistantes);
+    }
+  });
 }
 
