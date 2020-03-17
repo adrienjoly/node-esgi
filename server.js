@@ -28,11 +28,20 @@ app.post('/chat', function (req, res) {
     if (/ = /.test(req.body.msg)) {
       const [ cle, valeur ] = req.body.msg.split(' = ')
       const valeursExistantes = readValuesFromFile();
-      fs.writeFileSync('réponses.json', JSON.stringify({
+      const data = JSON.stringify({
         ...valeursExistantes,
         [cle]: valeur
-      }))
-      res.send('Merci pour cette information !')
+      })
+      fs.writeFile('réponses.json', data, (err) => {
+        console.log('appel au callback de writefile')
+        if (err) {
+          console.error('error while saving réponses.json', err)
+          res.send('Il y a eu une erreur lors de l\'enregistrement')
+        } else {
+          res.send('Merci pour cette information !')
+        }
+      });
+      console.log('appel à writefile effectué')
     } else {
       const cle = req.body.msg
       const reponse = readValuesFromFile()[cle]
