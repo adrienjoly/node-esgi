@@ -32,23 +32,22 @@ app.post('/chat', function (req, res) {
     if (/ = /.test(req.body.msg)) {
       const [ cle, valeur ] = req.body.msg.split(' = ')
       readValuesFromFile()
+        .catch(err => {
+          res.send('error while reading réponses.json', err)
+        })
         .then(valeursExistantes => {
           const data = JSON.stringify({
             ...valeursExistantes,
             [cle]: valeur
           })
-          writeFile('réponses.json', data).then(() => {
-            console.log('appel au callback de writefile')
-            res.send('Merci pour cette information !')
-          }).catch((err) => {
-            console.log('appel au callback de writefile')
-            console.error('error while saving réponses.json', err)
-            res.send('Il y a eu une erreur lors de l\'enregistrement')
-          });
-          console.log('appel à writefile effectué')
+          return writeFile('réponses.json', data)
         })
-        .catch(err => {
-          res.send('error while reading réponses.json', err)
+        .then(() => {
+          res.send('Merci pour cette information !')
+        })
+        .catch((err) => {
+          console.error('error while saving réponses.json', err)
+          res.send('Il y a eu une erreur lors de l\'enregistrement')
         })
     } else {
       const cle = req.body.msg
