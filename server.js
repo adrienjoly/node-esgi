@@ -66,8 +66,8 @@ app.listen(PORT, function () {
   console.log('Example app listening on port ' + PORT)
 })
 
-function readValuesFromFile() {
-  return readFile('réponses.json', { encoding: 'utf8' })
-    .then(reponses => JSON.parse(reponses))
+async function readValuesFromFile() {
+  const reponses = await readFile('réponses.json', { encoding: 'utf8' })
+  return JSON.parse(reponses)
 }
 
