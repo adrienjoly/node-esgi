@@ -51,14 +51,13 @@ app.post('/chat', async function (req, res) {
       }
     } else {
       const cle = req.body.msg
-      readValuesFromFile()
-        .then((values) => {
-          const reponse = values[cle]
-          res.send(cle + ': ' + reponse)
-        })
-        .catch((err) => {
-          res.send('error while reading réponses.json', err)
-        })
+      try {
+        const values = await readValuesFromFile()
+        const reponse = values[cle]
+        res.send(cle + ': ' + reponse)
+      } catch (err) {
+        res.send('error while reading réponses.json', err)
+      }
     }
   }
 })
