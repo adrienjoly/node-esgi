@@ -35,10 +35,7 @@ app.get('/messages/all', async function (req, res) {
   await client.connect();
   const collection = client.db(DATABASE_NAME).collection(COLLECTION_NAME);
   console.log('successfully connected to', DATABASE_NAME);
-
   const messages = await collection.find({}).toArray();
-  // await collection.insertOne({ date: new Date() });
-
   await client.close();
 
   res.send(messages)
@@ -47,6 +44,15 @@ app.get('/messages/all', async function (req, res) {
 app.post('/chat', async function (req, res) {
   if (req.body.msg === 'ville') {
     res.send('Nous sommes à Paris')
+
+    const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    await client.connect();
+    const collection = client.db(DATABASE_NAME).collection(COLLECTION_NAME);
+    console.log('successfully connected to', DATABASE_NAME);
+    await collection.insertOne({ from: 'user', msg: req.body.msg });
+    await collection.insertOne({ from: 'bot', msg: 'Nous sommes à Paris' });
+    await client.close();  
+
   } else if (req.body.msg === 'météo') {
     res.send('Il fait beau')
   } else {
