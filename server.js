@@ -3,20 +3,22 @@ const util = require('util')
 const express = require('express')
 const MongoClient = require('mongodb').MongoClient;
 
+const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
 const DATABASE_NAME = 'chat-bot';
 const COLLECTION_NAME = 'messages';
 
-const app = express();
-
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
 
-app.use(express.json()) // for parsing application/json
-
-const PORT = process.env.PORT || 3000;
+async function readValuesFromFile() {
+  const reponses = await readFile('réponses.json', { encoding: 'utf8' })
+  return JSON.parse(reponses)
+}
 
 let collection
+const app = express();
+app.use(express.json()) // for parsing application/json
 
 app.get('/', function (req, res) {
   res.send('Hello World!')
@@ -32,9 +34,7 @@ app.get('/hello', function (req, res) {
 })
 
 app.get('/messages/all', async function (req, res) {
-
   const messages = await collection.find({}).toArray();
-
   res.send(messages)
 })
 
@@ -103,8 +103,3 @@ app.post('/chat', async function (req, res) {
   })
   // await client.close() // should be done when the server is going down
 })()
-
-async function readValuesFromFile() {
-  const reponses = await readFile('réponses.json', { encoding: 'utf8' })
-  return JSON.parse(reponses)
-}
