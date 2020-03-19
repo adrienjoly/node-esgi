@@ -39,14 +39,17 @@ app.get('/messages/all', async function (req, res) {
 })
 
 app.post('/chat', async function (req, res) {
+
+  async function sendReply(reply) {
+    await collection.insertOne({ from: 'user', msg: req.body.msg })
+    await collection.insertOne({ from: 'bot', msg: reply })
+    res.send(reply)
+  }
+
   if (req.body.msg === 'ville') {
-    res.send('Nous sommes à Paris')
-
-    await collection.insertOne({ from: 'user', msg: req.body.msg });
-    await collection.insertOne({ from: 'bot', msg: 'Nous sommes à Paris' });
-
+    sendReply('Nous sommes à Paris')
   } else if (req.body.msg === 'météo') {
-    res.send('Il fait beau')
+    sendReply('Il fait beau')
   } else {
     if (/ = /.test(req.body.msg)) {
       const [ cle, valeur ] = req.body.msg.split(' = ')
@@ -54,7 +57,7 @@ app.post('/chat', async function (req, res) {
       try {
         valeursExistantes = await readValuesFromFile();
       } catch (err) {
-        res.send('error while reading réponses.json', err)
+        sendReply('error while reading réponses.json', err)
         return
       }
       const data = JSON.stringify({
@@ -63,19 +66,19 @@ app.post('/chat', async function (req, res) {
       })
       try {
         await writeFile('réponses.json', data)
-        res.send('Merci pour cette information !')
+        sendReply('Merci pour cette information !')
       } catch (err) {
         console.error('error while saving réponses.json', err)
-        res.send('Il y a eu une erreur lors de l\'enregistrement')
+        sendReply('Il y a eu une erreur lors de l\'enregistrement')
       }
     } else {
       const cle = req.body.msg
       try {
         const values = await readValuesFromFile()
         const reponse = values[cle]
-        res.send(cle + ': ' + reponse)
+        sendReply(cle + ': ' + reponse)
       } catch (err) {
-        res.send('error while reading réponses.json', err)
+        sendReply('error while reading réponses.json', err)
       }
     }
   }
