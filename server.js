@@ -29,6 +29,21 @@ app.get('/hello', function (req, res) {
   }
 })
 
+app.get('/messages/all', async function (req, res) {
+
+  const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+  await client.connect();
+  const collection = client.db(DATABASE_NAME).collection(COLLECTION_NAME);
+  console.log('successfully connected to', DATABASE_NAME);
+
+  const messages = await collection.find({}).toArray();
+  // await collection.insertOne({ date: new Date() });
+
+  await client.close();
+
+  res.send(messages)
+})
+
 app.post('/chat', async function (req, res) {
   if (req.body.msg === 'ville') {
     res.send('Nous sommes à Paris')
@@ -76,16 +91,3 @@ async function readValuesFromFile() {
   const reponses = await readFile('réponses.json', { encoding: 'utf8' })
   return JSON.parse(reponses)
 }
-
-(async () => {
-  const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-  await client.connect();
-  const collection = client.db(DATABASE_NAME).collection(COLLECTION_NAME);
-  console.log('successfully connected to', DATABASE_NAME);
-
-  const messages = await collection.find({}).toArray();
-  console.log('messages:', messages)
-  // await collection.insertOne({ date: new Date() });
-
-  await client.close();
-})();
