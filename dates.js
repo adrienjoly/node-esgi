@@ -14,5 +14,8 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
   // affiche la liste des documents de la collection dates dans la sortie standard
   const dates = await collection.find({}).toArray();
   console.log('dates:', dates)
+
+  await collection.insertOne({ date: new Date() });
+
   await client.close();
 })();
