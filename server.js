@@ -16,6 +16,8 @@ app.use(express.json()) // for parsing application/json
 
 const PORT = process.env.PORT || 3000;
 
+let collection
+
 app.get('/', function (req, res) {
   res.send('Hello World!')
 })
@@ -31,12 +33,7 @@ app.get('/hello', function (req, res) {
 
 app.get('/messages/all', async function (req, res) {
 
-  const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-  await client.connect();
-  const collection = client.db(DATABASE_NAME).collection(COLLECTION_NAME);
-  console.log('successfully connected to', DATABASE_NAME);
   const messages = await collection.find({}).toArray();
-  await client.close();
 
   res.send(messages)
 })
@@ -45,13 +42,8 @@ app.post('/chat', async function (req, res) {
   if (req.body.msg === 'ville') {
     res.send('Nous sommes à Paris')
 
-    const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-    await client.connect();
-    const collection = client.db(DATABASE_NAME).collection(COLLECTION_NAME);
-    console.log('successfully connected to', DATABASE_NAME);
     await collection.insertOne({ from: 'user', msg: req.body.msg });
     await collection.insertOne({ from: 'bot', msg: 'Nous sommes à Paris' });
-    await client.close();  
 
   } else if (req.body.msg === 'météo') {
     res.send('Il fait beau')
@@ -89,9 +81,17 @@ app.post('/chat', async function (req, res) {
   }
 })
 
-app.listen(PORT, function () {
-  console.log('Example app listening on port ' + PORT)
-})
+;(async () => {
+  console.log(`Connecting to ${DATABASE_NAME}...`)
+  const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  await client.connect()
+  collection = client.db(DATABASE_NAME).collection(COLLECTION_NAME)
+  console.log(`Successfully connected to ${DATABASE_NAME}`)
+  app.listen(PORT, function () {
+    console.log('Example app listening on port ' + PORT)
+  })
+  // await client.close() // should be done when the server is going down
+})()
 
 async function readValuesFromFile() {
   const reponses = await readFile('réponses.json', { encoding: 'utf8' })
