@@ -38,6 +38,14 @@ app.get('/messages/all', async function (req, res) {
   res.send(messages)
 })
 
+app.delete('/messages/last', async function (req, res) {
+  const lastTwoDocuments = await collection.find({}).sort({ _id: -1 }).limit(2).toArray()
+  const [ botReply, userMsg ] = lastTwoDocuments
+  await collection.deleteOne(userMsg)
+  await collection.deleteOne(botReply)
+  res.send('ok')
+})
+
 app.post('/chat', async function (req, res) {
 
   async function sendReply(reply) {
